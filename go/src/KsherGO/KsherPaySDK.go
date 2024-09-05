@@ -95,7 +95,7 @@ func GetNonceStr(num int) string {
 	return string(b)
 }
 
-//时间戳
+// 时间戳
 func GetTimeStamp() string {
 	return time.Now().Format("20060102150405")
 }
@@ -135,7 +135,7 @@ func KsherSign(params url.Values, privateKeyData []byte) (sign string, err error
 	return sign, nil
 }
 
-//签名检验
+// 签名检验
 func KsherVerify(resp KsherResp, publicKeyData []byte) error {
 	sign, err := hex.DecodeString(resp.Sign)
 	var keys []string
@@ -178,7 +178,7 @@ func KsherVerify(resp KsherResp, publicKeyData []byte) error {
 	return rsa.VerifyPKCS1v15(publicKey.(*rsa.PublicKey), crypto.MD5, hashed, sign)
 }
 
-//post 请求
+// post 请求
 func KsherPost(url string, postValue url.Values, privateKeyData, publicKey []byte) (KsherResp, error) {
 	response := KsherResp{Code: -1}
 	sign, err := KsherSign(postValue, privateKeyData)
@@ -250,15 +250,19 @@ func (client Client) QuickPay(mchOrderNo, feeType, authCode, channel, operatorId
 C扫B支付
 :param kwargs:
 必传参数
+
 	mch_order_no
 	fee_type
 	channel
 	total_fee
+
 选传参数
+
 	redirect_url
 	notify_url
 	paypage_title
 	operator_id
+
 :return:
 */
 func (client Client) JsApiPay(mchOrderNo, feeType, channel string, totalFee int) (response KsherResp, err error) {
@@ -278,11 +282,14 @@ func (client Client) JsApiPay(mchOrderNo, feeType, channel string, totalFee int)
 动态码支付
 :param kwargs:
 必传参数
+
 	mch_order_no
 	total_fee
 	fee_type
 	channel
+
 选传参数
+
 	redirect_url
 	notify_url
 	paypage_title
@@ -291,9 +298,10 @@ func (client Client) JsApiPay(mchOrderNo, feeType, channel string, totalFee int)
 	operator_id
 	device_id
 	img_type
+
 :return:
 */
-func (client Client) NativePay(mchOrderNo, feeType, channel string, totalFee int) (response KsherResp, err error) {
+func (client Client) NativePay(mchOrderNo, feeType, channel string, totalFee int, notifyURL string, product string) (response KsherResp, err error) {
 	postValue := url.Values{
 		"appid":        {client.AppId},
 		"nonce_str":    {GetNonceStr(4)},
@@ -302,6 +310,9 @@ func (client Client) NativePay(mchOrderNo, feeType, channel string, totalFee int
 		"total_fee":    {strconv.Itoa(totalFee)},
 		"fee_type":     {feeType},
 		"channel":      {channel},
+		"img_type":     {"base64"},
+		"notify_url":   {notifyURL},
+		"product":      {product},
 	}
 	return KsherPost(PayDomain+"/native_pay", postValue, client.PrivateKey, client.PublicKey)
 }
@@ -310,18 +321,22 @@ func (client Client) NativePay(mchOrderNo, feeType, channel string, totalFee int
 小程序支付
 :param kwargs:
 必传参数
+
 	mch_order_no
 	total_fee
 	fee_type
 	channel
 	sub_openid
 	channel_sub_appid
+
 选传参数
+
 	redirect_url
 	notify_url
 	paypage_title
 	product
 	operator_id
+
 :return:
 */
 func (client Client) MiniproPay(mchOrderNo, feeType, channel, subOpenid, channelSubAppId string, totalFee int) (response KsherResp, err error) {
@@ -343,13 +358,16 @@ func (client Client) MiniproPay(mchOrderNo, feeType, channel, subOpenid, channel
 app支付
 :param kwargs:
 必传参数
+
 	mch_order_no
 	total_fee
 	fee_type
 	channel
 	sub_openid
 	channel_sub_appid
+
 选传参数
+
 	redirect_url
 	notify_url
 	paypage_title
@@ -357,6 +375,7 @@ app支付
 	attach
 	operator_id
 	refer_url 仅当channel为alipay时需要
+
 :return:
 */
 func (client Client) AppPay(mchOrderNo, feeType, channel, subOpenid, channelSubAppId string, totalFee int) (response KsherResp, err error) {
@@ -378,11 +397,14 @@ func (client Client) AppPay(mchOrderNo, feeType, channel, subOpenid, channelSubA
 H5支付，仅支持channel=alipay
 :param kwargs:
 必传参数
+
 	mch_order_no
 	total_fee
 	fee_type
 	channel
+
 选传参数
+
 	redirect_url
 	notify_url
 	paypage_title
@@ -391,6 +413,7 @@ H5支付，仅支持channel=alipay
 	operator_id
 	device_id
 	refer_url
+
 :return:
 */
 func (client Client) WapPay(mchOrderNo, feeType, channel string, totalFee int) (response KsherResp, err error) {
@@ -410,11 +433,14 @@ func (client Client) WapPay(mchOrderNo, feeType, channel string, totalFee int) (
 PC网站支付，仅支持channel=alipay
 :param kwargs:
 必传参数
+
 	mch_order_no
 	total_fee
 	fee_type
 	channel
+
 选传参数
+
 	redirect_url
 	notify_url
 	paypage_title
@@ -423,6 +449,7 @@ PC网站支付，仅支持channel=alipay
 	operator_id
 	device_id
 	refer_url
+
 :return:
 */
 func (client Client) WepPay(mchOrderNo, feeType, channel string, totalFee int) (response KsherResp, err error) {
@@ -442,7 +469,9 @@ func (client Client) WepPay(mchOrderNo, feeType, channel string, totalFee int) (
 订单查询
 :param kwargs:
 必传参数
+
 	mch_order_no、ksher_order_no、channel_order_no三选一
+
 :return:
 */
 func (client Client) OrderQuery(mchOrderNo string) (response KsherResp, err error) {
@@ -459,9 +488,13 @@ func (client Client) OrderQuery(mchOrderNo string) (response KsherResp, err erro
 订单关闭
 :param kwargs:
 必传参数
+
 	mch_order_no、ksher_order_no、channel_order_no三选一
+
 选传参数
+
 	operator_id
+
 :return:
 */
 func (client Client) OrderClose(mchOrderNo string) (response KsherResp, err error) {
@@ -478,9 +511,13 @@ func (client Client) OrderClose(mchOrderNo string) (response KsherResp, err erro
 订单撤销
 :param kwargs:
 必传参数
+
 	mch_order_no、ksher_order_no、channel_order_no三选一
+
 选传参数
+
 	operator_id
+
 :return:
 */
 func (client Client) OrderReverse(mchOrderNo string) (response KsherResp, err error) {
@@ -497,13 +534,17 @@ func (client Client) OrderReverse(mchOrderNo string) (response KsherResp, err er
 订单退款
 :param kwargs:
 必传参数
+
 	total_fee
 	fee_type
 	refund_fee
 	mch_refund_no
 	mch_order_no、ksher_order_no、channel_order_no三选一
+
 选传参数
+
 	operator_id
+
 :return:
 */
 func (client Client) OrderRefund(mchRefundNo, feeType, mchOrderNo string, refundFee, totalFee int) (response KsherResp, err error) {
@@ -523,6 +564,7 @@ func (client Client) OrderRefund(mchRefundNo, feeType, mchOrderNo string, refund
 /*
 退款查询
 :param kwargs:
+
 	必传参数
 		mch_refund_no、ksher_refund_no、channel_refund_no三选一
 		mch_order_no、ksher_order_no、channel_order_no三选一
@@ -541,10 +583,12 @@ func (client Client) RefundQuery(mchRefundNo, mchOrderNo string) (response Ksher
 /*
 汇率查询
 :param kwargs:
+
 	必传参数
 		channel
 		fee_type
 		date
+
 :return:
 */
 func (client Client) RateQuery(channel, feeType, date string) (response KsherResp, err error) {
@@ -562,8 +606,10 @@ func (client Client) RateQuery(channel, feeType, date string) (response KsherRes
 /*
 聚合支付商户查询订单支付状态
 :param kwargs:
+
 	必传参数
 		mch_order_no
+
 :return:
 */
 func (client Client) GatewayOrderQuery(mch_order_no string) (response KsherResp, err error) {
@@ -579,6 +625,7 @@ func (client Client) GatewayOrderQuery(mch_order_no string) (response KsherResp,
 /*
 聚合支付商户通过API提交数据
 :param kwargs:
+
 	必传参数
 		mch_order_no: 商户订单号 str
 		fee_type: 货币种类 str
@@ -602,7 +649,9 @@ func (client Client) GatewayOrderQuery(mch_order_no string) (response KsherResp,
 		lang: 语言(en,cn,th) str
 		shop_name: logo旁文案 str
 		attach: 商户附加信息 str
+
 :return:
+
 	{'pay_content': 'https://gateway.ksher.com/mindex?order_uuid=订单uuid'}
 */
 func (client Client) GatewayPay(mch_order_no, fee_type, channel_list, mch_code, mch_redirect_url, mch_redirect_url_fail,
