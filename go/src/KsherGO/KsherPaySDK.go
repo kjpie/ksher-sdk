@@ -301,7 +301,7 @@ func (client Client) JsApiPay(mchOrderNo, feeType, channel string, totalFee int)
 
 :return:
 */
-func (client Client) NativePay(mchOrderNo, feeType, channel string, totalFee int, notifyURL string, product string) (response KsherResp, err error) {
+func (client Client) NativePay(mchOrderNo, feeType, channel string, totalFee int, notifyURL string, attach string) (response KsherResp, err error) {
 	postValue := url.Values{
 		"appid":        {client.AppId},
 		"nonce_str":    {GetNonceStr(4)},
@@ -312,7 +312,7 @@ func (client Client) NativePay(mchOrderNo, feeType, channel string, totalFee int
 		"channel":      {channel},
 		"img_type":     {"base64"},
 		"notify_url":   {notifyURL},
-		"product":      {product},
+		"attach":       {attach},
 	}
 	return KsherPost(PayDomain+"/native_pay", postValue, client.PrivateKey, client.PublicKey)
 }
