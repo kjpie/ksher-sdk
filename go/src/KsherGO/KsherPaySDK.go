@@ -655,7 +655,7 @@ func (client Client) GatewayOrderQuery(mch_order_no string) (response KsherResp,
 	{'pay_content': 'https://gateway.ksher.com/mindex?order_uuid=订单uuid'}
 */
 func (client Client) GatewayPay(mch_order_no, fee_type, channel_list, mch_code, mch_redirect_url, mch_redirect_url_fail,
-	product_name, refer_url, device string, total_fee int) (response KsherResp, err error) {
+	product_name, refer_url, device string, total_fee int, mch_notify_url string, background string, logo string, lang string, attach string) (response KsherResp, err error) {
 	postValue := url.Values{
 		"appid":                 {client.AppId},
 		"nonce_str":             {GetNonceStr(4)},
@@ -670,6 +670,13 @@ func (client Client) GatewayPay(mch_order_no, fee_type, channel_list, mch_code, 
 		"refer_url":             {refer_url},
 		"device":                {device},
 		"total_fee":             {strconv.Itoa(total_fee)},
+		"mch_notify_url":        {mch_notify_url},
+		//"background":            {"https://api-gateways.pompkins.com/file/logo/4.jpg"},
+		"payment_color": {"#F5912C"},
+		"logo":          {"https://api-gateways.pompkins.com/file/pompkins-logo/PKF.png"},
+		"ksher_explain": {"POMPKINS powered by Ksher"},
+		"lang":          {lang},
+		"attach":        {attach},
 	}
 	return KsherPost(GateDomain+"/gateway_pay", postValue, client.PrivateKey, client.PublicKey)
 }
